@@ -1,9 +1,7 @@
 
 const { test, expect } = require('@playwright/test')
-const { getPetCreated, getCreateBody, getUpdateBody } = require('../api/pet')
+const { getPetCreated, getCreateBody, getUpdateBody, getPetSchema } = require('../api/pet')
 
-
-  //expect(product).toMatchSchema(PRODUCT_SCHEMA)
 
   test("Create", async({request}) => {
 
@@ -91,5 +89,35 @@ test("Delete", async({request}) => {
   const getResponsePetDeleted = await request.get(`/v2/pet/`+petCreated.id);
 
   expect(getResponsePetDeleted.status()).toBe(404);
+
+});
+
+test("Schema", async({request}) => {
+
+  const body = getCreateBody()
+
+  const responsePetCreated = await request.post('/v2/pet', { data: body })
+
+  expect(responsePetCreated.ok()).toBeTruthy();
+  expect(responsePetCreated.status()).toBe(200); 
+
+  const petCreated = await responsePetCreated.json();
+
+  const getResponsePet = await request.get(`/v2/pet/`+petCreated.id);
+
+  expect(getResponsePet.ok()).toBeTruthy();
+  expect(getResponsePet.status()).toBe(200);
+
+  const getpetCreated = await getResponsePet.json();
+
+  expect(petCreated.id).toBe(getpetCreated.id);
+
+  const error = getPetSchema.safeParse(petCreated); // Validates userData against userSchema
+  
+  if (!error.success) {
+    console.error(error.error);
+  }
+
+  expect(error.success).toBe(true);
 
 });

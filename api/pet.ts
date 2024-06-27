@@ -1,3 +1,4 @@
+import { z } from 'zod';
 
 export const getCreateBody = () => {
   return {
@@ -30,3 +31,16 @@ export const getUpdateBody = (id) => {
     "name": "cachorrinho"
   }
 }
+
+const Category = z.object({ id: z.number().int(), name: z.string() }).partial();
+
+const Tag = z.object({ id: z.number().int(), name: z.string() }).partial();
+
+export const getPetSchema = z.object({
+    id: z.number().int().optional(),
+    name: z.string(),
+    category: Category.optional(),
+    photoUrls: z.array(z.string()),
+    tags: z.array(Tag).optional(),
+    status: z.enum(["available", "pending", "sold"]).optional(),
+});
